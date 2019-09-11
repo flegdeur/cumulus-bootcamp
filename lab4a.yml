@@ -1,0 +1,34 @@
+---
+- name: Enable lab4
+  hosts: switches
+  vars:
+    leaf1: 192.168.0.11
+    leaf2: 192.168.0.12
+    sys_mac: 44:38:39:FF:00:01
+    vlan_range: 10,20
+    access_vlan: 10
+    bond_nr: BOND0
+    swprange: swp49-50
+    add_int: swp1
+
+  become: yes
+  tasks:
+  - name: erase current config
+    nclu:
+      commands:
+      - del all
+
+  - name: add time servers to switches
+    nclu:
+      commands:
+      - add time ntp server 192.168.0.254 iburst
+      - del time ntp server 0.cumulusnetworks.pool.ntp.org
+      - del time ntp server 1.cumulusnetworks.pool.ntp.org
+      - del time ntp server 2.cumulusnetworks.pool.ntp.org
+      - del time ntp server 3.cumulusnetworks.pool.ntp.org
+
+  - name: add clag to both leaf switches
+    nclu:
+      commands:
+      - add clag peer sys-mac {{ sys_mac }} interface {{ swprange }} {{ clstat }} backup-ip {{ clneigh }}
+

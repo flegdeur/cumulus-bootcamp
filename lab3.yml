@@ -1,0 +1,29 @@
+---
+- name: Enable lab3
+  hosts: switches
+  vars:
+    vlan_range: 10,20
+    access_vlan: 10
+    bond_nr: BOND0
+    swprange: swp49-50
+    add_int: swp1
+
+  become: yes
+  tasks:
+  - name: add vlan to switches
+    nclu:
+      commands:
+      - add bridge bridge vids {{ vlan_range }}
+      - add bridge bridge ports {{ bond_nr }},{{ add_int }}
+      - add interface {{ add_int }} bridge access {{ access_vlan }}
+
+  - name: check vlan config
+    nclu:
+      commands:
+      - show bridge vlan
+      register: shbrvl
+
+  - name: print output of show command
+    debug:
+      var: shbrvl
+
