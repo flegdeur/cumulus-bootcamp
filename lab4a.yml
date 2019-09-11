@@ -26,9 +26,9 @@
       - del time ntp server 1.cumulusnetworks.pool.ntp.org
       - del time ntp server 2.cumulusnetworks.pool.ntp.org
       - del time ntp server 3.cumulusnetworks.pool.ntp.org
-
+    atomic: true
   - name: add clag to both leaf switches
     nclu:
       commands:
       - add clag peer sys-mac {{ sys_mac }} interface {{ swprange }} {{ clstat }} backup-ip {{ clneigh }}
-
+    atomic: true
