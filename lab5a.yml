@@ -1,0 +1,21 @@
+---
+- name: Enable lab1 and lab2
+  hosts: switches
+  become: yes
+  tasks:
+  - name: add loopback interface, lab01.
+    nclu:
+      commands:
+      - add loopback lo ip address {{ lbi }}/32
+      - add interface {{ p2p }} ip address {{ lbi }}/32
+      - add ospf router-id {{ lbi }}
+      - add loopback lo ospf area 0
+      - add interface {{ p2p }} ospf area 0
+      - add interface {{ p2p }} ospf network point-to-point
+      atomic: true
+    register: output_ospf
+
+  - name: print output of assigend config
+    debug:
+      var: output_ospf
+  

@@ -1,0 +1,61 @@
+---
+- name: Enable lab4
+  hosts: switches
+  vars:
+    leaf1: 192.168.0.11
+    leaf2: 192.168.0.12
+    sys_mac: 44:38:39:FF:00:01
+    vlan_range: 10,20
+    access_vlan: 10
+    bond_nr: BOND0
+    swprange: swp49-50
+    add_int: swp1
+
+  become: yes
+  tasks:
+  - name: add clag to both leaf switches
+    nclu:
+      commands:
+      - add clag peer sys-mac {{ sys_mac }} interface {{ swprange }} {{ role }} backup-ip {{ backup_ip }}
+      atomic: true
+    register: output_clag
+
+  - name: print output adding clag
+    debug:
+      var: output_clag
+  
+  - name: get status clag
+    nclu:
+      commands:
+      - show clag
+    register: status_clag
+
+  - name: print output status clag
+    debug:
+      var: status_clag
+
+  - name: add clag bond to server01
+    nclu:
+      commands:
+      - add clag port bond {{ item.srvname }} interface {{ item.srvint }} clag-id {{ item.clid }}
+      - add bond {{ item.srvname }} bridge access {{ access_vlan }}
+      atomic: true
+    loop:
+      - { srvname: SERVER01, srvint: swp1, clid: 1 }
+      - { srvname: SERVER02, srvint: swp2, clid: 2 }
+    register: output_bond
+
+  - name: print ooutput bond
+    debug:
+      var: output_bond
+  
+  - name: get status clag
+    nclu:
+      commands:
+      - show clag
+    register: status_clag
+
+  - name: print output status clag
+    debug:
+      var: status_clag
+

@@ -6,7 +6,7 @@
   - name: add loopback interface, lab01.
     nclu:
       commands:
-      - add loopback lo ip address {{ lbi }}
+      - add loopback lo ip address {{ lbi }}/32
       atomic: true
   
   - name: add bond between switches - lab02.
